@@ -2,6 +2,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import NoSuchElementException
 
 
 class Page:
@@ -53,8 +54,11 @@ class Page:
         :param expected_text: Text to be in web element
         :param locator: Search strategy and locator of web element (ex. (By.ID, 'id') )
         """
-        actual_text = self.driver.find_element(*locator).text
-        assert expected_text == actual_text, f"Expected {expected_text} does not match actual {actual_text}"
+        try:
+            actual_text = self.driver.find_element(*locator).text
+            assert expected_text == actual_text, f"Expected {expected_text} does not match actual {actual_text}"
+        except NoSuchElementException:
+            assert False, f'''There's no "{expected_text}" text'''
 
     def hover_over_element(self, element):
         actions = ActionChains(self.driver)
