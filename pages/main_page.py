@@ -59,4 +59,4 @@ class MainPage(Page):
         links = self.find_elements(*self.CATEGORY_LINKS)
         for link in links:
             r = requests.head(link.get_attribute("href"))
-            assert r.status_code, f"Link to {link.text} category doesn't work"
+            assert r.status_code == 200, f"Link to {link.text} category doesn't work"
