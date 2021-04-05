@@ -9,3 +9,8 @@
 ```steps: /features/tests/steps(TMTN-16).features```
 
 ```features: /features/tests/TMTN-16.features```
+
+## 3. TMTN-24: Sort by Price
+```steps: /features/tests/steps(TMTN-24).features```
+
+```features: /features/tests/TMTN-24.features```

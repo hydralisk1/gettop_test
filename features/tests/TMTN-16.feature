@@ -1,5 +1,5 @@
 # Created by Joonil at 4/2/21
-Feature: Test Scenarios for footer links in GetTop
+Feature: Test Scenarios for the side block on product pages in GetTop
 
   Scenario Outline: "You may also like…" block is shown and working properly
     Given Open the <product-title> product page
