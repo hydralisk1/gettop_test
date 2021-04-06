@@ -17,6 +17,10 @@ class ShopPage(Page):
     FILTER_BUTTON = (By.CSS_SELECTOR, "div.price_slider_wrapper button")
     REMOVE_BUTTON = (By.CSS_SELECTOR, "div#shop-sidebar a.tooltipstered")
     PRICE_ON_FILTER = (By.CSS_SELECTOR, "span.amount")
+    PRODUCT_LINKS = (By.CSS_SELECTOR, "div.image-fade_in_back > a")
+    PRODUCT_NAMES = (By.CSS_SELECTOR, "p.product-title > a")
+    VIEWED_ITEMS = (By.CSS_SELECTOR, "aside span.product-title")
+    PRODUCT_TITLE = (By.CSS_SELECTOR, "h1.product-title")
 
     product_order = ""
     ASC_OPTION = "Sort by price: low to high"
@@ -24,6 +28,7 @@ class ShopPage(Page):
     url = "https://gettop.us/shop"
     min_price = 190
     max_price = 2400
+    recently_viewed_item = ""
 
     def open_shop_page(self):
         self.open_page(self.url)
@@ -200,3 +205,18 @@ class ShopPage(Page):
             # if maximum filter has been removed
             # the handle's style would be left: 100%;
             assert handle[1].get_attribute("style") == "left: 100%;", which + error_msg
+
+    def click_product(self, number):
+        num = int(number[:-2]) - 1
+        self.recently_viewed_item = self.find_elements(*self.PRODUCT_NAMES)[num].text
+        self.find_elements(*self.PRODUCT_LINKS)[num].click()
+
+    def verify_recently_viewed_item(self):
+        viewed_item = self.find_elements(*self.VIEWED_ITEMS)[0].text
+        assert self.recently_viewed_item == viewed_item, f"{self.recently_viewed_item} is not on the top in the list"
+
+    def click_viewed_item(self):
+        self.find_elements(*self.VIEWED_ITEMS)[0].click()
+
+    def verify_page(self):
+        self.verify_text(self.recently_viewed_item, *self.PRODUCT_TITLE)
