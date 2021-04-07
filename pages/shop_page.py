@@ -2,6 +2,7 @@ from pages.base_page import Page
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver import ActionChains
+from time import sleep
 
 
 class ShopPage(Page):
@@ -104,41 +105,54 @@ class ShopPage(Page):
         self.min_price = min_price
         self.max_price = max_price
 
+        # for i in range(2):
+        #     target_price = max_price if i else min_price
+        #     self.set_slider(i, target_price)
+
+        self.set_min_slider(min_price)
+        self.set_max_slider(max_price)
+
+    def set_min_slider(self, min_price):
+        slide_pointers = self.find_elements(*self.SLIDER_POINTERS)
+
+        filter_min_price = self.currency_to_int(self.find_element(*self.MIN_PRICE).text)
+        filter_max_price = self.currency_to_int(self.find_element(*self.MAX_PRICE).text)
+
+        start = slide_pointers[0].location['x'] - slide_pointers[1].location['x']
+        offset_x = start * (1 - (min_price-filter_min_price)/(filter_max_price-filter_min_price))
+
+        self.slide_to(slide_pointers[0], slide_pointers[1], offset_x)
+
+        current_filter_min = self.currency_to_int(self.find_element(*self.MIN_PRICE).text.replace("$", ""))
+
+        while min_price != current_filter_min:
+            offset_x = offset_x - 1 if current_filter_min > min_price else offset_x + 1
+            self.slide_to(slide_pointers[0], slide_pointers[1], offset_x)
+            current_filter_min = self.currency_to_int(self.find_element(*self.MIN_PRICE).text.replace("$", ""))
+
+    def set_max_slider(self, max_price):
+        slide_pointers = self.find_elements(*self.SLIDER_POINTERS)
+
         filter_min_price = int(self.find_element(*self.MIN_PRICE).text.replace("$", "").replace(",", ""))
         filter_max_price = int(self.find_element(*self.MAX_PRICE).text.replace("$", "").replace(",", ""))
 
-        slide_pointers = self.find_elements(*self.SLIDER_POINTERS)
-        start = slide_pointers[0].location['x'] - slide_pointers[1].location['x']
-        offset_x = start + (-1 * start) * (min_price - filter_min_price) / (filter_max_price - filter_min_price)
+        start = slide_pointers[1].location['x'] - slide_pointers[0].location['x']
+        offset_x = start * (1 - (filter_max_price - max_price) / (filter_max_price - filter_min_price))
 
+        self.slide_to(slide_pointers[1], slide_pointers[0], offset_x)
+
+        current_filter_max = self.currency_to_int(self.find_element(*self.MAX_PRICE).text.replace("$", ""))
+        while max_price != current_filter_max:
+            offset_x = offset_x - 1 if current_filter_max > max_price else offset_x + 1
+            self.slide_to(slide_pointers[1], slide_pointers[0], offset_x)
+            current_filter_max = self.currency_to_int(self.find_element(*self.MAX_PRICE).text.replace("$", ""))
+
+    def slide_to(self, start, to, offset_x):
         ActionChains(self.driver)\
-            .click_and_hold(slide_pointers[0])\
-            .move_to_element_with_offset(slide_pointers[1], offset_x, 0)\
+            .click_and_hold(start)\
+            .move_to_element_with_offset(to, offset_x, 0)\
+            .release()\
             .perform()
-
-        while self.find_element(*self.MIN_PRICE).text != f"${min_price:,}":
-            offset_x += 1
-            ActionChains(self.driver)\
-                .click_and_hold(slide_pointers[0])\
-                .move_to_element_with_offset(slide_pointers[1], offset_x, 0)\
-                .perform()
-
-        slide_pointers = self.find_elements(*self.SLIDER_POINTERS)
-
-        start = slide_pointers[1].location['x'] - slide_pointers[0].location['x'] + 20
-        offset_x = start - (start * (filter_max_price - max_price) / (filter_max_price - filter_min_price))
-
-        ActionChains(self.driver) \
-            .click_and_hold(slide_pointers[1]) \
-            .move_to_element_with_offset(slide_pointers[0], offset_x, 0) \
-            .perform()
-
-        while self.find_element(*self.MAX_PRICE).text != f"${max_price:,}":
-            offset_x -= 1
-            ActionChains(self.driver)\
-                .click_and_hold(slide_pointers[1])\
-                .move_to_element_with_offset(slide_pointers[0], offset_x, 0)\
-                .perform()
 
     def click_filter_button(self):
         self.click(*self.FILTER_BUTTON)
@@ -220,3 +234,7 @@ class ShopPage(Page):
 
     def verify_page(self):
         self.verify_text(self.recently_viewed_item, *self.PRODUCT_TITLE)
+
+    @staticmethod
+    def currency_to_int(price):
+        return int(price.replace("$", "").replace(",", ""))
