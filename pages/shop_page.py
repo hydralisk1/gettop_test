@@ -22,6 +22,7 @@ class ShopPage(Page):
     PRODUCT_NAMES = (By.CSS_SELECTOR, "p.product-title > a")
     VIEWED_ITEMS = (By.CSS_SELECTOR, "aside span.product-title")
     PRODUCT_TITLE = (By.CSS_SELECTOR, "h1.product-title")
+    NO_PRODUCT_MSG = (By.CSS_SELECTOR, "p.woocommerce-info")
 
     product_order = ""
     ASC_OPTION = "Sort by price: low to high"
@@ -158,7 +159,6 @@ class ShopPage(Page):
         self.click(*self.FILTER_BUTTON)
 
     def verify_price_filter(self):
-        self.verify_remove_button()
         # Find how many pages in the shop page
         pages = self.find_elements(*self.PAGE_NUMBERS)
 
@@ -178,26 +178,6 @@ class ShopPage(Page):
             # if there's another page, click it to move to the next page
             if i+1 < len(pages):
                 pages[i+1].click()
-
-    def verify_remove_button(self):
-        buttons = self.find_elements(*self.REMOVE_BUTTON)
-
-        if len(buttons) == 2:
-            min_price = buttons[0].find_element(*self.PRICE_ON_FILTER).text.split(".")[0]
-            max_price = buttons[1].find_element(*self.PRICE_ON_FILTER).text.split(".")[0]
-        elif len(buttons) == 1:
-            if buttons[0].text == "Min":
-                min_price = buttons[0].find_element(*self.PRICE_ON_FILTER).text.split(".")[0]
-                max_price = "$2,400"
-            else:
-                max_price = buttons[0].find_element(*self.PRICE_ON_FILTER).text.split(".")[0]
-                min_price = "$190"
-        else:
-            min_price = "$190"
-            max_price = "$2,400"
-
-        assert min_price == f"${self.min_price:,}", f"Expected minimum price on the remove button is ${self.min_price:,}, but actual price is {min_price}"
-        assert max_price == f"${self.max_price:,}", f"Expected maximum price on the remove button is ${self.max_price:,}, but actual price is {max_price}"
 
     def click_x_button(self, which):
         buttons = self.find_elements(*self.REMOVE_BUTTON)
@@ -234,6 +214,15 @@ class ShopPage(Page):
 
     def verify_page(self):
         self.verify_text(self.recently_viewed_item, *self.PRODUCT_TITLE)
+
+    def verify_no_product(self, message):
+        products = self.find_elements(*self.PRODUCT_NAMES)
+        if len(products) == 0:
+            self.verify_text(message, *self.NO_PRODUCT_MSG)
+        else:
+            for product in products:
+                print(product, end=" ")
+            print("exist")
 
     @staticmethod
     def currency_to_int(price):
