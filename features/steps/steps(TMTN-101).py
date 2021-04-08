@@ -1,21 +1,17 @@
-from behave import given, then, when
+from behave import then, when
 
 
-@given('Open the my account page')
-def open_my_account(context):
-    context.app.account_page.open_my_account()
+@when('Hover over {category} Category Menu')
+def hover_over_category(context, category):
+    context.app.main_page.hover_over_category(category)
 
 
-@when('User tries log in with {email} and {pw}')
-def login_try(context, email, pw):
-    context.app.account_page.login_try(email, pw)
+@then('User can see all items under the category')
+def verify_items_under_category(context):
+    context.app.main_page.verify_items_under_category()
 
 
-@then('Verify login was failed')
-def verify_login_failed(context):
-    context.app.account_page.verify_login_failed()
+@then('Verify correct pages open when clicking on each product')
+def verify_links_on_dropdown(context):
+    context.app.main_page.verify_links_on_dropdown()
 
-
-@then('Verify correct error message was displayed')
-def verify_error_msg(context):
-    context.app.account_page.verify_error_msg()

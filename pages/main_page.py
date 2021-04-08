@@ -14,6 +14,10 @@ class MainPage(Page):
     COPYRIGHT = (By.CSS_SELECTOR, "div.copyright-footer")
     LINK_TO_TOP = (By.CSS_SELECTOR, "a[href='#top']")
     CATEGORY_LINKS = (By.CSS_SELECTOR, "ul#menu-main-1 a")
+    CATEGORIES_ON_TOP = (By.CSS_SELECTOR, "li[id*='menu-item'] > a.nav-top-link")
+    DROPDOWN_ITEMS = (By.CSS_SELECTOR, "li.current-dropdown li > a")
+
+    category = ""
 
     def open_main_page(self):
         self.open_page("https://gettop.us")
@@ -60,3 +64,30 @@ class MainPage(Page):
         for link in links:
             r = requests.head(link.get_attribute("href"))
             assert r.status_code == 200, f"Link to {link.text} category doesn't work"
+
+    def hover_over_category(self, category):
+        categories = {"mac": 0,
+                      "iphone": 1,
+                      "ipad": 2,
+                      "watch": 3,
+                      "accessories": 4}
+
+        assert categories.get(category.lower()) is not None, f"There's no {category} on the top menu"
+
+        self.category = category
+        self.hover_over_element(self.find_elements(*self.CATEGORIES_ON_TOP)[categories[category.lower()]])
+
+    def verify_items_under_category(self):
+        assert self.find_elements(*self.DROPDOWN_ITEMS), f"There's no item on the {self.category} dropdown menu"
+
+    def verify_links_on_dropdown(self):
+        num_of_items = len(self.find_elements(*self.DROPDOWN_ITEMS))
+
+        for i in range(num_of_items):
+            self.hover_over_category(self.category)
+            current_item = self.find_elements(*self.DROPDOWN_ITEMS)[i]
+            product_name = current_item.text
+            current_item.click()
+
+            self.verify_text(product_name, *(By.CSS_SELECTOR, "h1.product-title"))
+

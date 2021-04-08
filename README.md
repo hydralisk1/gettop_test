@@ -40,3 +40,9 @@
 ```steps: /features/tests/steps(TMTN-101).py```
 
 ```features: /features/tests/TMTN-101.features```
+
+
+## 8. TMTN-106: Product Category iPAD
+```steps: /features/tests/steps(TMTN-106).py```
+
+```features: /features/tests/TMTN-106.features```
