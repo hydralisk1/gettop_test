@@ -12,7 +12,7 @@ def browser_init(context):
     context.driver.maximize_window()
     context.driver.implicitly_wait(5)
     # 10 sec changed to 3 sec since 10 sec is too long time
-    context.driver.wait = WebDriverWait(context.driver, 3)
+    context.driver.wait = WebDriverWait(context.driver, 5)
 
     context.app = Application(context.driver)
 

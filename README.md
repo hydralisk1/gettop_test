@@ -46,3 +46,9 @@
 ```steps: /features/tests/steps(TMTN-106).py```
 
 ```features: /features/tests/TMTN-106.features```
+
+
+## 9. TMTN-110: Category
+```steps: /features/tests/steps(TMTN-110).py```
+
+```features: /features/tests/TMTN-110.features```
