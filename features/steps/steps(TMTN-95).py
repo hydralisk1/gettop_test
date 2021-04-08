@@ -1,4 +1,4 @@
-from behave import then, when
+from behave import then
 
 
 @then('"{message}" message shown if no products match selected filters')
