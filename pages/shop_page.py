@@ -2,7 +2,6 @@ from pages.base_page import Page
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver import ActionChains
-from time import sleep
 
 
 class ShopPage(Page):
@@ -10,6 +9,7 @@ class ShopPage(Page):
     PRICES = (By.CSS_SELECTOR, "div.col.large-9 span.price")
     NORMAL_PRICES = (By.CSS_SELECTOR, "span")
     INS_PRICES = (By.CSS_SELECTOR, "ins > span")
+    CATEGORIES = (By.CSS_SELECTOR, "p.category")
     PAGE_NUMBERS = (By.CSS_SELECTOR, "a.page-number")
     SELECTED_OPTION = (By.CSS_SELECTOR, "option[selected='selected']")
     SLIDER_POINTERS = (By.CSS_SELECTOR, "span.ui-slider-handle")
@@ -23,6 +23,8 @@ class ShopPage(Page):
     VIEWED_ITEMS = (By.CSS_SELECTOR, "aside span.product-title")
     PRODUCT_TITLE = (By.CSS_SELECTOR, "h1.product-title")
     NO_PRODUCT_MSG = (By.CSS_SELECTOR, "p.woocommerce-info")
+    CATEGORIES_UNDER_BROWSE = (By.CSS_SELECTOR, "li.cat-item > a")
+    ACC_CAT_TOGGLE_BTN = (By.CSS_SELECTOR, "li.cat-item > button.toggle")
 
     product_order = ""
     ASC_OPTION = "Sort by price: low to high"
@@ -223,6 +225,38 @@ class ShopPage(Page):
             for product in products:
                 print(product, end=" ")
             print("exist")
+
+    def verify_correct_categories_under_browse(self):
+        correct_categories = ["Accessories", "AirPods", "Watch", "iPad", "iPhone", "MacBook"]
+        self.find_element(*self.ACC_CAT_TOGGLE_BTN).click()
+
+        categories_under_browse = self.find_elements(*self.CATEGORIES_UNDER_BROWSE)
+
+        for category in categories_under_browse:
+            category_name = category.text
+            assert category_name in correct_categories, f"{category_name} is not a correct category"
+
+    def verify_correct_page_under_browse(self):
+        num_of_cat = len(self.find_elements(*self.CATEGORIES_UNDER_BROWSE))
+
+        for i in range(num_of_cat):
+            current_category = self.find_elements(*self.CATEGORIES_UNDER_BROWSE)[i]
+            category_name = current_category.text
+            current_category.click()
+            self.verify_category(category_name)
+
+    def verify_category(self, category_name):
+        categories = self.find_elements(*self.CATEGORIES)
+
+        for i, category in enumerate(categories):
+            # If current category is sub category of Accessories,
+            # Check if current product name includes current sub category
+            if category_name.lower() == "airpods" or category_name.lower() == "watch":
+                product_name = self.find_elements(*self.PRODUCT_NAMES)[i].text
+                assert category.text.lower() == "accessories", f"Expected category is Accessories, but actual is {category.text}"
+                assert category_name in product_name, f"{category_name} is not included in {product_name}"
+            else:
+                assert category.text.lower() == category_name.lower(), f"Expected category is {category_name}, but actual is {category.text}"
 
     @staticmethod
     def currency_to_int(price):
