@@ -1,5 +1,6 @@
 from pages.base_page import Page
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import MoveTargetOutOfBoundsException
 
 
 class CategoryPage(Page):
@@ -59,10 +60,15 @@ class CategoryPage(Page):
             self.close_quick_view()
 
     def open_quick_view(self, qv):
-        self.hover_over_element(qv)
-        qv.click()
-        self.wait_for_element_appear(*self.QUICK_VIEW_CONTAINER)
-        assert self.find_elements(*self.QUICK_VIEW_CONTAINER), "Quick view didn't open"
+        try:
+            self.hover_over_element(qv)
+            qv.click()
+            self.wait_for_element_appear(*self.QUICK_VIEW_CONTAINER)
+            assert self.find_elements(*self.QUICK_VIEW_CONTAINER), "Quick view didn't open"
+        # When using Firefox, it doesn't scroll automatically
+        except MoveTargetOutOfBoundsException:
+            self.driver.execute_script(f"window.scrollTo(0, {qv.location['y']//2})")
+            self.open_quick_view(qv)
 
     def close_quick_view(self):
         self.find_element(*self.BUTTON_CLOSING_QUICK_VIEW).click()

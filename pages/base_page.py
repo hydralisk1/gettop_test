@@ -43,7 +43,9 @@ class Page:
         e.click()
 
     def wait_for_element_disappear(self, *locator):
+        self.driver.implicitly_wait(0)
         self.wait.until(EC.invisibility_of_element(locator))
+        self.driver.implicitly_wait(5)
 
     def wait_for_element_appear(self, *locator):
         return self.wait.until(EC.presence_of_element_located(locator))

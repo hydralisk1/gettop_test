@@ -108,10 +108,6 @@ class ShopPage(Page):
         self.min_price = min_price
         self.max_price = max_price
 
-        # for i in range(2):
-        #     target_price = max_price if i else min_price
-        #     self.set_slider(i, target_price)
-
         self.set_min_slider(min_price)
         self.set_max_slider(max_price)
 
@@ -175,7 +171,7 @@ class ShopPage(Page):
                     if price\
                     else float(span.find_element(*self.NORMAL_PRICES).text.replace(",", "").replace("$", ""))
 
-                assert self.min_price <= product_price <= self.max_price, "The price filter doesn't work"
+                assert self.min_price <= product_price <= self.max_price, f"The price has to be between ${self.min_price} - ${self.max_price}, but {product_price}"
 
             # if there's another page, click it to move to the next page
             if i+1 < len(pages):
@@ -183,12 +179,17 @@ class ShopPage(Page):
 
     def click_x_button(self, which):
         buttons = self.find_elements(*self.REMOVE_BUTTON)
+        button_text = {"minimum": "Min", "maximum": "Max"}
+
         if which == "minimum":
             self.min_price = 190
-            buttons[0].click()
         else:
             self.max_price = 2400
-            buttons[-1].click()
+
+        for button in buttons:
+            if button.text.split()[0] == button_text[which]:
+                button.click()
+                break
 
     def verify_price_filter_handle(self, which):
         handle = self.find_elements(*self.SLIDER_POINTERS)

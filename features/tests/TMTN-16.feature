@@ -17,9 +17,9 @@ Feature: Test Scenarios for the side block on product pages in GetTop
       | ipad-pro       | You may also like… |
 
 
-  Scenario: "You may also like…" block is shown and working properly
-    Given Open the ipad product page
-    Then "You may also like…" block is shown
-    And It contains products
-    And Verify all product links under the block are clickable and take to correct pages
+#  Scenario: "You may also like…" block is shown and working properly
+#    Given Open the ipad product page
+#    Then "You may also like…" block is shown
+#    And It contains products
+#    And Verify all product links under the block are clickable and take to correct pages
 

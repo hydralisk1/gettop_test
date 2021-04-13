@@ -7,12 +7,19 @@ def browser_init(context):
     """
     :param context: Behave context
     """
-    context.driver = webdriver.Chrome()
+    # Web drivers by browser
+    # context.driver = webdriver.Chrome()
+    context.driver = webdriver.Firefox()
+
+    # Headless Chrome Browser
+    # options = webdriver.ChromeOptions()
+    # options.add_argument('headless')
+    # context.driver = webdriver.Chrome(chrome_options=options)
 
     context.driver.maximize_window()
     context.driver.implicitly_wait(5)
     # 10 sec changed to 3 sec since 10 sec is too long time
-    context.driver.wait = WebDriverWait(context.driver, 5)
+    # context.driver.wait = WebDriverWait(context.driver, 5)
 
     context.app = Application(context.driver)
 

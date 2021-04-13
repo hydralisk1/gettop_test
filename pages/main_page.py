@@ -76,6 +76,10 @@ class MainPage(Page):
 
         self.category = category
         self.hover_over_element(self.find_elements(*self.CATEGORIES_ON_TOP)[categories[category.lower()]])
+        # Below code is for Firefox
+        self.driver.implicitly_wait(0)
+        self.wait_for_element_appear(*self.DROPDOWN_ITEMS)
+        self.driver.implicitly_wait(5)
 
     def verify_items_under_category(self):
         assert self.find_elements(*self.DROPDOWN_ITEMS), f"There's no item on the {self.category} dropdown menu"
