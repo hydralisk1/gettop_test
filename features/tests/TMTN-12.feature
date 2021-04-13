@@ -9,9 +9,9 @@ Feature: Test Scenarios for footer links in GetTop
     Given Open GetTop page
     Then Verify all products in the footer have price, name, star-rating
 
-  Scenario: "Copyright 2020" shown in the footer
+  Scenario: "Copyright 2021" shown in the footer
     Given Open GetTop page
-    Then Verify "Copyright 2020" is shown in the footer
+    Then Verify "Copyright 2021" is shown in the footer
 
   Scenario: Footer has button to go back to top
     Given Open GetTop page
