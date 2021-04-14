@@ -1,6 +1,6 @@
 from pages.base_page import Page
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import MoveTargetOutOfBoundsException
+from selenium.common.exceptions import MoveTargetOutOfBoundsException, NoSuchElementException
 
 
 class CategoryPage(Page):
@@ -55,31 +55,36 @@ class CategoryPage(Page):
     def open_and_close_quick_view(self):
         quick_views = self.find_elements(*self.QUICK_VIEWS)
 
-        for qv in quick_views:
-            self.open_quick_view(qv)
+        for i, qv in enumerate(quick_views):
+            self.open_quick_view(qv, i)
             self.close_quick_view()
 
-    def open_quick_view(self, qv):
+    def open_quick_view(self, qv, i):
         try:
             self.hover_over_element(qv)
-            qv.click()
+            self.wait_for_element_click(*(By.XPATH, f"(//a[@href='#quick-view'])[{i+1}]"))
             self.wait_for_element_appear(*self.QUICK_VIEW_CONTAINER)
             assert self.find_elements(*self.QUICK_VIEW_CONTAINER), "Quick view didn't open"
+
         # When using Firefox, it doesn't scroll automatically
         except MoveTargetOutOfBoundsException:
             self.driver.execute_script(f"window.scrollTo(0, {qv.location['y']//2})")
-            self.open_quick_view(qv)
+            self.open_quick_view(qv, i)
 
     def close_quick_view(self):
         self.find_element(*self.BUTTON_CLOSING_QUICK_VIEW).click()
-        self.wait_for_element_disappear(*self.QUICK_VIEW_CONTAINER)
+        if self.find_elements(*self.QUICK_VIEW_CONTAINER):
+            try:
+                self.wait_for_element_disappear(*self.QUICK_VIEW_CONTAINER)
+            except NoSuchElementException:
+                pass
 
     def add_product_from_quick_view_to_cart(self):
         quick_view_size = len(self.find_elements(*self.QUICK_VIEWS))
 
         for i in range(quick_view_size):
             qv = self.find_elements(*self.QUICK_VIEWS)[i]
-            self.open_quick_view(qv)
+            self.open_quick_view(qv, i)
             self.add_to_cart_from_qv()
 
     def add_to_cart_from_qv(self):
@@ -90,7 +95,11 @@ class CategoryPage(Page):
             expected_message = f'“{product}” has been added to your cart.'
 
             self.find_element(*self.ADD_TO_CART_FROM_QV).click()
-            self.wait_for_element_disappear(*self.QUICK_VIEW_CONTAINER)
+            if self.find_elements(*self.QUICK_VIEW_CONTAINER):
+                try:
+                    self.wait_for_element_disappear(*self.QUICK_VIEW_CONTAINER)
+                except NoSuchElementException:
+                    pass
             self.verify_text(expected_message, *self.MESSAGE_ADD_TO_CART)
         # If this item is out of stock, just close this quick view
         else:

@@ -1,5 +1,4 @@
 from selenium import webdriver
-from selenium.webdriver.support.wait import WebDriverWait
 from app.application import Application
 
 
@@ -16,6 +15,20 @@ def browser_init(context):
     options.add_argument('headless')
     options.add_argument('--window-size=1920,1080')
     context.driver = webdriver.Chrome(chrome_options=options)
+
+    # Browser Stack
+    # bs_user = "joonilkim1"
+    # bs_pw = "c6e85fe6YAg6QxTpP6o1"
+    #
+    # desired_cap = {
+    #     'browser': 'Chrome',
+    #     'browser_version': '89.0',
+    #     'os': 'Windows',
+    #     'os_version': '10',
+    #     'name': 'Bstack-[Python] Sample Test'
+    # }
+    # url = f'http://{bs_user}:{bs_pw}@hub-cloud.browserstack.com/wd/hub'
+    # context.driver = webdriver.Remote(url, desired_capabilities=desired_cap)
 
     context.driver.maximize_window()
     context.driver.implicitly_wait(5)
